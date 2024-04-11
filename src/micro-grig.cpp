@@ -1,4 +1,5 @@
 #include "micro-grid.hpp"
+#include <cmath>
 
 // constructos for house_t
 
@@ -26,7 +27,8 @@ house_t::house_t( void ){
     gen_pv = std::vector<double> ( NUM_OF_INTERVALS, 0 ) ;
 }
 
-house_t::house_t( int house_num, int num_of_pvs ){
+house_t::house_t( int house_num, int num_of_pvs, double coeff ){
+    int i; 
 
     load_var = std::vector<double> ( 0, 0 ) ;
     load_fix = std::vector<double> ( 0, 0 ) ;
@@ -58,7 +60,6 @@ house_t::house_t( int house_num, int num_of_pvs ){
  
             if( line_count >= 1 ){    // does not consider first line
 
-                int i;
                 for(i = 0 ; i < house_num ; i++ ){
                     i_start = read_line.find( DELIMITER, i_start ) ;
                     i_start++;
@@ -100,8 +101,7 @@ house_t::house_t( int house_num, int num_of_pvs ){
  
             if( line_count >= 1 ){    // does not consider first line
 
-                int i;
-                for(i = 0 ; i < house_num ; i++ ){
+                for(i = 0 ; i < 1 ; i++ ){
                     i_start = read_line.find( DELIMITER, i_start ) ;
                     i_start++;
                 }              
@@ -115,9 +115,7 @@ house_t::house_t( int house_num, int num_of_pvs ){
 
                 std::string value = read_line.substr(i_start , i_end - i_start - 1 ); 
 
-                load_fix.push_back( stod(value) ) ;
-
-                // std::cout << value << '\n';
+                gen_pv.push_back( stod(value) * num_of_pvs ) ;               
 
             }
 
@@ -125,10 +123,28 @@ house_t::house_t( int house_num, int num_of_pvs ){
 
         }
         houses_file.close();
+
     }
     else{
         std::cout << "unable to open file \n";
     } 
+
+    // creates load.var data
+    double average_power = 524.569 ;   // average power cons. of the average house 
+    
+    load_var_num = 16 ;                // must be on 8h per day
+    
+    //double coeff = 0.25 ;              // energy of load_var with respect to load_fix
+
+    load_var_power = ( NUM_OF_INTERVALS / load_var_num ) * average_power * coeff ;
+
+    for( i = 0 ; i < load_var_num ; i++ ){
+        load_var.push_back( load_var_power ) ;
+    }
+    for( i = load_var_num ; i < NUM_OF_INTERVALS ; i++ ){
+        load_var.push_back( 0.0 ) ;
+    }
+    
 }
 
 void house_t::print_vector( std::vector<double> vector ){
@@ -141,4 +157,59 @@ void house_t::print_vector( std::vector<double> vector ){
 
 }
 
+void house_t::print_load_var( void ){
+    int i;
 
+    std::cout << "load_var: [" ;
+    for( i = 0 ; i < NUM_OF_INTERVALS ; i++ ){
+        if( load_var[i] == 0 ){
+            std::cout << "⌷" ;
+        }
+        else{
+            std::cout << "∎" ;
+        }
+    }
+    std::cout << "]\n" ;
+
+
+}
+
+// constructors for microgrid_t
+
+micro_grid_t::micro_grid_t( void ){
+
+    alfa = 1.0 ;
+    beta = 3.0 ;
+
+    houses.push_back( house_t( 0, 2, 0.25 ) ) ;
+    houses.push_back( house_t( 1, 2, 0.25 ) ) ;
+    houses.push_back( house_t( 2, 1, 0.25 ) ) ;
+    houses.push_back( house_t( 3, 1, 0.25 ) ) ;
+    houses.push_back( house_t( 4, 0, 0.25 ) ) ;
+    houses.push_back( house_t( 5, 0, 0.25 ) ) ;
+
+}
+
+double micro_grid_t::simulate( void ){
+    int i, j;
+    double cost = 0 ;
+
+    for( i = 0 ; i < NUM_OF_INTERVALS ; i++ ){      // iterates over NUM_OF_INTERVALS
+
+        double national_power = 0 ;
+
+        for( j = 0 ; j < houses.size() ; j++ ){     // iterates over size of houses
+            national_power += houses[j].load_fix[i] + houses[j].load_var[i] - houses[j].gen_pv[i] ;
+        }
+
+        if( national_power > 0 ){   // energy national-grid -> micro-grid
+            cost += beta * (national_power * national_power ) ;
+        }
+        else{                       // // energy micro-grid -> national-grid
+            cost += alfa * (national_power * national_power ) ;
+        }
+
+    }
+
+    return std::sqrt(cost) ;
+}
