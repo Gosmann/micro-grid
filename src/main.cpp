@@ -74,13 +74,26 @@ int main(){
     //random_shuffle( m1, 0 );
 
     // shift right   
-    shift_right( m1, 48);
+    shift_right( m1, 48 );
     
     // greedy-random swap
     //greedy_random_swap( m1, 1e5 ) ;
 
+    /*
+    for ( i = 0 ; i < 48 ; i++){
+        shift_right( m1, 1 );
 
-    m1.save_cost( "../micro-grid/data/m1_cost_best.csv" ) ; 
+        m1.save_cost( "../micro-grid/data/synch_time/"+std::to_string(i)+".csv" ) ; 
+
+        std::cout << i <<" \n" ;
+        std::cout << m1.simulate() << "\n" ;
+        for ( i = 0 ; i < m1.houses.size() ; i++)
+            m1.houses[i].print_load_var() ;
+
+
+    }
+    */
+    
     
     std::cout << "final result : \n" ;
     std::cout << m1.simulate() << "\n" ;
@@ -174,13 +187,16 @@ void shift_right( micro_grid_t& m1, int epochs=NUM_OF_INTERVALS ){
                 char buffer[100] ;
                 sprintf(buffer, "%8.2f", best_cost) ;
 
-                std::cout << buffer << " " << k << " : " ;
-                m1.houses[k].print_load_var() ;
+                //std::cout << buffer << " " << k << " : " ;
+                //m1.houses[k].print_load_var() ;
     
             }
             else{
                 
             }
+
+            std::cout << cost << "\n" ;
+            m1.save_cost( "../micro-grid/data/synch_time/"+std::to_string(i)+".csv" ) ; 
             
         }
     }
