@@ -74,10 +74,10 @@ int main(){
     //random_shuffle( m1, 0 );
 
     // shift right   
-    shift_right( m1, 48 );
+    //shift_right( m1, 48 );
     
     // greedy-random swap
-    //greedy_random_swap( m1, 1e5 ) ;
+    greedy_random_swap( m1, 2e3 ) ;
 
     /*
     for ( i = 0 ; i < 48 ; i++){
@@ -114,6 +114,8 @@ void greedy_random_swap( micro_grid_t &m1, int epochs ){
 
     double best_cost = m1.simulate() ;
 
+    k = 0 ;
+
     for( i = 0 ; i < epochs ; i++ ){
         
         // random shuffle
@@ -143,14 +145,23 @@ void greedy_random_swap( micro_grid_t &m1, int epochs ){
             best_cost = cost ;
 
             char buffer[100] ;
-            sprintf(buffer, "%8.2f", best_cost) ;
+            //sprintf(buffer, "%8.2f", best_cost) ;
 
-            std::cout << buffer << " " << index << " : " ;
-            m1.houses[index].print_load_var() ;
+            //std::cout << buffer << " " << index << " : " ;
+            //m1.houses[index].print_load_var() ;
         }
         else{
             std::iter_swap( m1.houses[index].load_var.begin() + t1, m1.houses[index].load_var.begin() + t2 );
         }        
+    
+        
+        if( i % (epochs/20) == 0){
+            k++;
+            std::cout << m1.simulate() << "\n" ;
+            m1.save_cost( "../micro-grid/data/random/"+std::to_string(k)+".csv" ) ; 
+        }
+        
+    
     }
 
 }
@@ -195,8 +206,8 @@ void shift_right( micro_grid_t& m1, int epochs=NUM_OF_INTERVALS ){
                 
             }
 
-            std::cout << cost << "\n" ;
-            m1.save_cost( "../micro-grid/data/synch_time/"+std::to_string(i)+".csv" ) ; 
+            //std::cout << cost << "\n" ;
+            //m1.save_cost( "../micro-grid/data/synch_time/"+std::to_string(i)+".csv" ) ; 
             
         }
     }
