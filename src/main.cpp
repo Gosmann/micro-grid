@@ -6,25 +6,27 @@
 
 std::random_device rd;
 std::mt19937 g(rd());
- 
-int main(){
 
-    micro_grid_t m1 ;
+void greedy_random_swap( micro_grid_t &m1, int epochs );
+
+void random_shuffle( micro_grid_t &m1, int epochs ){
+
+    int i, j, k; 
+
+    // start from prev
+    
+    // start random
+    for ( i = 0 ; i < m1.houses.size() ; i++)
+        std::shuffle(m1.houses[i].load_var.begin(), m1.houses[i].load_var.end(), g);
 
     double best_cost = m1.simulate() ;
 
-    std::cout << best_cost << " : " ;
-    m1.houses[0].print_load_var() ;
-
-    int i, j, k;
-    
-    // random shuffle
-    
-    for( i = 0 ; i < 1e6 ; i++ ){
+    for( i = 0 ; i < epochs ; i++ ){
         
         std::uniform_int_distribution<int> uni( 0 , m1.houses.size() - 1 ); 
 
         int index = uni( g );   // gets random house index
+        //int index = 0 ;
 
         // random shuffle
         micro_grid_t m1_copy = m1 ; 
@@ -43,7 +45,7 @@ int main(){
             char buffer[100] ;
             sprintf(buffer, "%8.2f", best_cost) ;
 
-            std::cout << buffer << " " << k << " : " ;
+            std::cout << buffer << " " << index << " : " ;
             m1.houses[index].print_load_var() ;
         }
 
@@ -52,49 +54,54 @@ int main(){
         }
 
     }
-    
+}
+
+void shift_right( micro_grid_t& m1, int epochs );
+
+int main(){
+    int i;
+
+    micro_grid_t m1 ;
+
+    double best_cost = m1.simulate() ;
+
+    std::cout << best_cost << "\n" ;
+
+    for ( i = 0 ; i < m1.houses.size() ; i++)
+        m1.houses[i].print_load_var() ;
+
+    // random shuffle
+    //random_shuffle( m1, 0 );
 
     // shift right   
-    /*
-    for( k = 0 ; k < m1.houses.size() ; k++ ){
-
-        for( i = 0 ; i < NUM_OF_INTERVALS ; i++ ){
-        
-            // time-shift
-            std::rotate(m1.houses[k].load_var.rbegin(), m1.houses[k].load_var.rbegin() + 1, 
-                m1.houses[k].load_var.rend());
-
-            // std::shuffle(m1.houses[0].load_var.begin(), m1.houses[0].load_var.end(), g);
-
-            for( j = 1 ; j < m1.houses.size() ; j++ ){
-                // m1.houses[j].load_var = m1.houses[0].load_var ;
-            }
-
-            double cost = m1.simulate() ;
-
-            if( cost < best_cost ){
-                best_cost = cost ;
-
-                char buffer[100] ;
-                sprintf(buffer, "%8.2f", best_cost) ;
-
-                std::cout << buffer << " " << k << " : " ;
-                m1.houses[k].print_load_var() ;
+    shift_right( m1, 48);
     
-            }
-            else{
-                //std::cout << cost << " : " ;
-                //m1.houses[0].print_load_var() ;
-            }
-            
-        }
-    
-    }
-    */
-
     // greedy-random swap
-    /*
-    for( i = 0 ; i < 10e6 ; i++ ){
+    //greedy_random_swap( m1, 1e5 ) ;
+
+
+    m1.save_cost( "../micro-grid/data/m1_cost_best.csv" ) ; 
+    
+    std::cout << "final result : \n" ;
+    std::cout << m1.simulate() << "\n" ;
+    for ( i = 0 ; i < m1.houses.size() ; i++)
+        m1.houses[i].print_load_var() ;
+    
+    
+    
+
+
+    return 0;
+}
+
+
+void greedy_random_swap( micro_grid_t &m1, int epochs ){
+    
+    int i, j, k;
+
+    double best_cost = m1.simulate() ;
+
+    for( i = 0 ; i < epochs ; i++ ){
         
         // random shuffle
         // std::shuffle(m1.houses[0].load_var.begin(), m1.houses[0].load_var.end(), g);
@@ -130,14 +137,56 @@ int main(){
         }
         else{
             std::iter_swap( m1.houses[index].load_var.begin() + t1, m1.houses[index].load_var.begin() + t2 );
-        }
-        
+        }        
     }
-    */
-    
-    
-    
 
-
-    return 0;
 }
+
+void shift_right( micro_grid_t& m1, int epochs=NUM_OF_INTERVALS ){
+
+    int i, j, k;
+
+    double best_cost = m1.simulate() ;
+
+    micro_grid_t m1_best = m1 ;
+
+    for( k = 0 ; k < 1 ; k++ ){
+    //for( k = 0 ; k < m1.houses.size() ; k++ ){
+
+        for( i = 0 ; i < epochs ; i++ ){
+        
+            // time-shift
+            std::rotate(m1.houses[k].load_var.rbegin(), m1.houses[k].load_var.rbegin() + 1, 
+                m1.houses[k].load_var.rend());
+
+            // std::shuffle(m1.houses[0].load_var.begin(), m1.houses[0].load_var.end(), g);
+
+            for( j = 1 ; j < m1.houses.size() ; j++ ){
+                m1.houses[j].load_var = m1.houses[0].load_var ;
+            }
+
+            double cost = m1.simulate() ;
+
+            if( cost < best_cost ){
+                m1_best = m1 ;
+                best_cost = cost ;
+
+                char buffer[100] ;
+                sprintf(buffer, "%8.2f", best_cost) ;
+
+                std::cout << buffer << " " << k << " : " ;
+                m1.houses[k].print_load_var() ;
+    
+            }
+            else{
+                
+            }
+            
+        }
+    }
+
+    m1 = m1_best ;
+
+}
+
+

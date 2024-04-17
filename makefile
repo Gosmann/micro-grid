@@ -6,3 +6,4 @@ run :
 
 clean :
 	rm output
+	rm ./data/*

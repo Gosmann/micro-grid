@@ -44,5 +44,6 @@ class micro_grid_t {
         micro_grid_t(  ) ;
 
         double simulate(  ) ;
+        int save_cost( std::string ) ;
 
 } ;
