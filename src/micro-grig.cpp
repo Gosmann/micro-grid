@@ -132,7 +132,7 @@ house_t::house_t( int house_num, int num_of_pvs, double coeff ){
     // creates load.var data
     double average_power = 524.569 ;   // average power cons. of the average house 
     
-    load_var_num = 12 ;                // must be on 6h per day
+    load_var_num = 12 * 1 ;                // must be on 6h per day
     
     //double coeff = 0.25 ;              // energy of load_var with respect to load_fix
 
@@ -186,14 +186,35 @@ micro_grid_t::micro_grid_t( void ){
     alfa = 1.0 ;
     beta = 1.0 ;
 
-    double var_share = 0.20 ;
+    double var_share = 0.40 ;
 
     houses.push_back( house_t( 0, 2, var_share ) ) ;
     houses.push_back( house_t( 1, 2, var_share ) ) ;
-    houses.push_back( house_t( 2, 1, var_share ) ) ;
-    houses.push_back( house_t( 3, 1, var_share ) ) ;
-    houses.push_back( house_t( 4, 0, var_share ) ) ;
-    houses.push_back( house_t( 5, 0, var_share ) ) ;
+    houses.push_back( house_t( 2, 2, var_share ) ) ;
+    houses.push_back( house_t( 3, 2, var_share ) ) ;
+    houses.push_back( house_t( 4, 2, var_share ) ) ;
+    houses.push_back( house_t( 5, 2, var_share ) ) ;
+
+    houses.push_back( house_t( 0, 2, var_share ) ) ;
+    houses.push_back( house_t( 1, 2, var_share ) ) ;
+    houses.push_back( house_t( 2, 2, var_share ) ) ;
+    houses.push_back( house_t( 3, 2, var_share ) ) ;
+    houses.push_back( house_t( 4, 2, var_share ) ) ;
+    houses.push_back( house_t( 5, 2, var_share ) ) ;
+
+    houses.push_back( house_t( 0, 2, var_share ) ) ;
+    houses.push_back( house_t( 1, 2, var_share ) ) ;
+    houses.push_back( house_t( 2, 2, var_share ) ) ;
+    houses.push_back( house_t( 3, 2, var_share ) ) ;
+    houses.push_back( house_t( 4, 2, var_share ) ) ;
+    houses.push_back( house_t( 5, 2, var_share ) ) ;
+
+    houses.push_back( house_t( 0, 2, var_share ) ) ;
+    houses.push_back( house_t( 1, 2, var_share ) ) ;
+    houses.push_back( house_t( 2, 2, var_share ) ) ;
+    houses.push_back( house_t( 3, 2, var_share ) ) ;
+    houses.push_back( house_t( 4, 2, var_share ) ) ;
+    houses.push_back( house_t( 5, 2, var_share ) ) ;
         
 }
 

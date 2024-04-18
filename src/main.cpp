@@ -11,7 +11,7 @@ void greedy_random_swap( micro_grid_t &m1, int epochs );
 
 void random_shuffle( micro_grid_t &m1, int epochs ){
 
-    int i, j, k; 
+    int i, j, k=0; 
 
     // start from prev
     
@@ -45,13 +45,20 @@ void random_shuffle( micro_grid_t &m1, int epochs ){
             char buffer[100] ;
             sprintf(buffer, "%8.2f", best_cost) ;
 
-            std::cout << buffer << " " << index << " : " ;
-            m1.houses[index].print_load_var() ;
+            //std::cout << buffer << " " << index << " : " ;
+            //m1.houses[index].print_load_var() ;
         }
 
         else{
             m1 = m1_copy ;
         }
+
+        if( i % (epochs/50) == 0){
+            k++;
+            std::cout << m1.simulate() << "\n" ;
+            m1.save_cost( "../micro-grid/data/random_shuffle/"+std::to_string(k)+".csv" ) ; 
+        }
+        
 
     }
 }
@@ -71,13 +78,13 @@ int main(){
         m1.houses[i].print_load_var() ;
 
     // random shuffle
-    //random_shuffle( m1, 0 );
+    //random_shuffle( m1, 2e3 );
 
     // shift right   
     //shift_right( m1, 48 );
     
     // greedy-random swap
-    greedy_random_swap( m1, 2e3 ) ;
+    greedy_random_swap( m1, 1e5 ) ;
 
     /*
     for ( i = 0 ; i < 48 ; i++){
@@ -94,15 +101,13 @@ int main(){
     }
     */
     
-    
     std::cout << "final result : \n" ;
     std::cout << m1.simulate() << "\n" ;
     for ( i = 0 ; i < m1.houses.size() ; i++)
         m1.houses[i].print_load_var() ;
     
+    m1.save_cost( "../micro-grid/data/final.csv" ) ; 
     
-    
-
 
     return 0;
 }
@@ -155,10 +160,10 @@ void greedy_random_swap( micro_grid_t &m1, int epochs ){
         }        
     
         
-        if( i % (epochs/20) == 0){
+        if( i % (epochs / 50) == 0){
             k++;
             std::cout << m1.simulate() << "\n" ;
-            m1.save_cost( "../micro-grid/data/random/"+std::to_string(k)+".csv" ) ; 
+            //m1.save_cost( "../micro-grid/data/random/"+std::to_string(k)+".csv" ) ; 
         }
         
     
@@ -206,7 +211,7 @@ void shift_right( micro_grid_t& m1, int epochs=NUM_OF_INTERVALS ){
                 
             }
 
-            //std::cout << cost << "\n" ;
+            std::cout << cost << "\n" ;
             //m1.save_cost( "../micro-grid/data/synch_time/"+std::to_string(i)+".csv" ) ; 
             
         }
